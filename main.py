@@ -14,8 +14,10 @@ def on_message(client, userdata, message):
     print(type(decodedData))
     print(decodedData)
 
-    collection.insert_one(decodedData)
-
+    try:
+        collection.insert_one(decodedData)
+    except:
+        print("Connection to the database is unsuccessful")
 
 # MQTT Client for IES Gateway
 if __name__ == '__main__':
@@ -30,18 +32,19 @@ if __name__ == '__main__':
     client.on_connect = on_connect
     client.on_message = on_message
 
+
     client.disable_logger()
     # Add a Try Block
 
     try:
-        client.connect("localhost", 1883, 60)
+        client.connect("localhost", 1883)
     except:
         print("Something gone wrong with connection to Broker!")
         quit()
 
     client.loop(timeout=1.0)
 
-    client.subscribe("Sensor/IoTData", qos=0)
+    client.subscribe("Sensor/IoTData", qos=1)
 
     # client.loop_start()
 
