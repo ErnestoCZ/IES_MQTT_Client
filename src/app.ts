@@ -1,24 +1,32 @@
 //const mqtt = require('mqtt');
-import mqtt, { MqttClient } from 'mqtt';
+import mqtt from 'mqtt';
+import http2 from 'http2';
+import { json } from 'stream/consumers';
+const backendAPI_URL = 'http://localhost:3000';
 
-const backendAPI_URL = 'localhost:3000/IESGateway/';
-
+//config for instances
 const mqttConfig: mqtt.IClientOptions = {
   clientId: 'IES_Gateway_Mqtt_client',
+  clean: true,
 };
 
-const client = mqtt.connect('localhost', mqttConfig);
+const MQTTClient = mqtt.connect('mqtt://localhost', mqttConfig);
 
-const topic: string = 'test';
+const topic: string[] = ['test', 'test1'];
 
-client.on('connect', () => {
-  client.subscribe(topic, (err) => {
-    client.on('message', (topic, message, packet) => {
+MQTTClient.on('connect', () => {
+  MQTTClient.subscribe(topic, (err) => {
+    MQTTClient.on('message', (topic, message, packet) => {
       //TODO send data to API
+      console.log(message.toString());
     });
   });
 });
 
-client.on('close', () => {
+MQTTClient.on('close', () => {
   console.log('disconnected');
+});
+
+MQTTClient.on('connect', () => {
+  console.log('connected to Broker!');
 });

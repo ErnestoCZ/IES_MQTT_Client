@@ -1,12 +1,11 @@
-FROM python:3.10.12
+FROM node:20.11.0
 
 WORKDIR /app
 
-COPY requirements.txt .
-COPY main.py .
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY dist/ .
+COPY package.json .
 
-COPY . .
+RUN npm install --save
 
-CMD ["python", "main.py"]
+CMD ["node", "app.js"]
