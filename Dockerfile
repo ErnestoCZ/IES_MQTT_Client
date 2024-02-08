@@ -1,11 +1,22 @@
+FROM node:20.11.0 as BUILD
+
+WORKDIR /app
+
+COPY . . 
+
+RUN npm install && npx tsc -p ./tsconfig.json
+
+
+
 FROM node:20.11.0
 
 WORKDIR /app
 
-
-COPY dist/ .
 COPY package.json .
 
 RUN npm install --save
 
-CMD ["node", "app.js"]
+COPY --from=BUILD /app/dist dist
+
+
+CMD ["npm" , "start"]
