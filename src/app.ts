@@ -10,6 +10,7 @@ const APIUrl: string = 'http://localhost:3000/IESGateway/';
 const mqttConfig: mqtt.IClientOptions = {
   clientId: 'IES_Gateway_Mqtt_client',
   clean: true,
+  reconnectPeriod: 5,
 };
 
 //Clients

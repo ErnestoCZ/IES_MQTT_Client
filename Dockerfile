@@ -19,4 +19,4 @@ RUN npm install --save
 COPY --from=BUILD /app/dist dist
 
 
-CMD ["npm" , "start"]
+CMD ["node" , "./dist/app.js"]
