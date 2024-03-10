@@ -2,15 +2,16 @@
 import mqtt from 'mqtt';
 import axios from 'axios';
 const host: string = 'localhost';
-const port: number = 3000;
 const path: string = 'IESGateway/';
+const port: number = 3000;
+const reconnectAfterMS = 10000;
 const APIUrl: string = 'http://localhost:3000/IESGateway/';
 
 //Config
 const mqttConfig: mqtt.IClientOptions = {
   clientId: 'IES_Gateway_Mqtt_client',
   clean: true,
-  reconnectPeriod: 5,
+  reconnectPeriod: reconnectAfterMS,
 };
 
 //Clients
@@ -19,15 +20,19 @@ const MQTTClient = mqtt.connect('mqtt://localhost', mqttConfig); //connects to t
 const topic: string[] = ['test', 'test1', 'SensorDataToGateway'];
 
 MQTTClient.on('connect', () => {
-  console.log('Connected to Broker!!');
+  console.log('Connected to local MQTT-Broker');
   MQTTClient.subscribe(topic, (err) => {});
 });
 
 MQTTClient.on('close', () => {
-  console.log('disconnected');
+  console.log('Connection to Broker lost');
 });
-MQTTClient.on('error', () => {
+MQTTClient.on('error', (error) => {
+  console.log(error);
   MQTTClient.end();
+});
+MQTTClient.on('offline', () => {
+  console.log(`Client is offline`);
 });
 
 MQTTClient.on('reconnect', () => {
@@ -37,7 +42,7 @@ MQTTClient.on('reconnect', () => {
 MQTTClient.on('message', (topic, message, packet) => {
   if (topic.toString() != 'test') {
     const messageJSON = JSON.parse(message.toString('utf-8'));
-    //! TODO : Store data direct to a Buffer => forward later the whole Buffer!
+    //TODO build a local buffer
     console.log(messageJSON);
 
     axios
@@ -47,7 +52,7 @@ MQTTClient.on('message', (topic, message, packet) => {
       })
       .catch((reason) => {
         console.error('error!');
-        console.log(reason.response.data);
+        console.log(reason.response?.data);
       });
   }
 });
