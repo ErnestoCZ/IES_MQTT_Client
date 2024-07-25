@@ -1,12 +1,11 @@
-//const mqtt = require('mqtt');
 import mqtt from "mqtt";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { getApplicationIds, getTentants } from "./requests";
+import { fetchDataForTopicToSubscribe, topic } from "./requests";
 
 dotenv.config({ path: "../.env" });
-const host: string = process.env.HOST_IP ?? "";
-const path: string = "IESGateway/";
+
+const host: string = process.env.HOST_IP ?? `localhost`;
 const reconnectAfterMS = Number(process.env.RECONNECT_MS);
 const backendAddr: string = "localhost";
 const backendPort: number = Number(process.env.CLIENT_PORT) ?? 3000;
@@ -18,29 +17,14 @@ const mqttConfig: mqtt.IClientOptions = {
   clean: false,
   reconnectPeriod: reconnectAfterMS,
 };
-//TODO FETCH AVAILABLE TOPICS via HTTP Request
-const topic: string[] = [
-  // 'application/82bcd164-9c50-4ff1-8dda-50b66c528472/device/5bd2ffa00648c0b2/event/up',
-  // 'application/82bcd164-9c50-4ff1-8dda-50b66c528472/device/5bd2ffa00648c0b5/event/up',
-  // 'application/82bcd164-9c50-4ff1-8dda-50b66c528472/device/5bd2ffa00648c0b3/event/up',
-];
 
-const applications: string[] = [];
-async function fetchTopics() {
-  const cs_apiKey: string = process.env.CHIRPSTACK_API_KEY ?? "";
-  const tentants = await getTentants("10");
-  const applications = await getApplicationIds();
-
-  // console.log(res);
-}
-
-fetchTopics();
+export const MQTTClient = mqtt.connect(`mqtt://${host}`, mqttConfig); //connects to the local Broker
 //Clients
-const MQTTClient = mqtt.connect(`mqtt://${host}`, mqttConfig); //connects to the local Broker
 
 MQTTClient.on("connect", () => {
   console.log("Connected to local MQTT-Broker");
-  MQTTClient.subscribe(topic, (err) => {});
+  fetchDataForTopicToSubscribe();
+  // MQTTClient.subscribe(topic, (err) => {});
 });
 
 MQTTClient.on("close", () => {
